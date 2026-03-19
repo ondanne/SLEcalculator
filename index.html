@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SLE Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --lv:#8B7CC8;--lv-bg:#EDE8FC;--lv-lt:#F5F3FF;
+  --mn:#4DAE8A;--mn-bg:#D6F0E8;
+  --pc:#E08050;--pc-bg:#FAE8DC;
+  --sk:#4A9EC4;--sk-bg:#D8EEF8;
+  --rs:#D0607A;--rs-bg:#FAE0E4;
+  --bt:#C09020;--bt-bg:#FDF0D0;
+  --g0:#F4F1FC;--g1:#C8C0E0;--g2:#8880A8;--g3:#2E2850;
+  --r:14px;--rs2:8px;
+  --sh:0 2px 12px rgba(100,80,180,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(150deg,#F0EDFB 0%,#E8F5F0 60%,#FCF0F2 100%);color:var(--g3);min-height:100vh}
+.app{max-width:440px;margin:0 auto;padding-bottom:72px}
+
+.hdr{background:linear-gradient(120deg,#C9BFF0,#A8DCC8);padding:12px 14px 10px;position:sticky;top:0;z-index:99;box-shadow:0 2px 10px rgba(140,120,200,.18)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:16px;font-weight:800;color:#3C2E80}
+.hdr-sub{font-size:10px;color:#2A7D5E;font-weight:700;letter-spacing:.5px;margin-top:1px}
+.rst{background:rgba(255,255,255,.45);border:none;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#5C4E9E;padding:5px 10px;border-radius:10px;cursor:pointer}
+
+.score-strip{background:white;margin:8px 10px 0;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);display:flex;align-items:center;gap:10px}
+.sc-ring{position:relative;width:58px;height:58px;flex-shrink:0}
+.sc-ring svg{transform:rotate(-90deg)}
+.rb{fill:none;stroke:#EDE8FC;stroke-width:5}
+.rf{fill:none;stroke-width:5;stroke-linecap:round;stroke-dasharray:153;stroke-dashoffset:153;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1),stroke .3s}
+.sc-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sc-n{font-size:18px;font-weight:800;line-height:1}
+.sc-d{font-size:9px;color:var(--g1);font-weight:700}
+.sc-info{flex:1;min-width:0}
+.sc-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;display:inline-block;margin-bottom:4px;transition:all .3s}
+.sp-pend{background:var(--bt-bg);color:var(--bt)}
+.sp-no{background:var(--rs-bg);color:var(--rs)}
+.sp-pass{background:var(--mn-bg);color:#2A7D5E}
+.sp-fail{background:var(--lv-bg);color:var(--lv)}
+.sc-txt2{font-size:10px;color:var(--g2);line-height:1.4}
+
+.ana-row{margin:6px 10px 0;background:white;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);display:flex;align-items:center;gap:10px;cursor:pointer;border:2px solid transparent;transition:border-color .25s,background .25s;user-select:none;-webkit-user-select:none}
+.ana-row.on{border-color:#C9BFF0;background:var(--lv-lt)}
+.ana-lbl{flex:1}
+.ana-nm{font-size:12px;font-weight:700}
+.ana-sb{font-size:10px;color:var(--g2);margin-top:1px}
+.etag{font-size:9px;background:#EDE8FC;color:#8B7CC8;padding:2px 5px;border-radius:5px;margin-left:4px;vertical-align:middle}
+.tog{width:40px;height:22px;border-radius:11px;background:#DDD8F0;position:relative;flex-shrink:0;transition:background .3s}
+.tog::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:white;top:3px;left:3px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.ana-row.on .tog{background:var(--lv)}
+.ana-row.on .tog::after{transform:translateX(18px)}
+
+.domains{margin:6px 10px 0;display:flex;flex-direction:column;gap:5px}
+.dom-card{background:white;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.dom-hdr{display:flex;align-items:center;gap:7px;padding:9px 11px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.dom-ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.dom-nm{font-size:12px;font-weight:700;flex:1;color:var(--g3)}
+.dom-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--g0);color:var(--g1);transition:all .3s;white-space:nowrap}
+.dom-badge.lit{color:white}
+.dom-arr{font-size:9px;color:var(--g1);margin-left:2px;transition:transform .3s;flex-shrink:0}
+.dom-arr.op{transform:rotate(180deg)}
+
+.dom-body{display:none;padding:0 9px 9px;flex-direction:column;gap:3px}
+.dom-body.op{display:flex}
+.tag-row{display:flex;flex-wrap:wrap;gap:4px}
+.tag{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:var(--rs2);background:var(--g0);border:1.5px solid transparent;cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none}
+.tag.wide{flex:1 1 100%}
+.tag.sel{border-color:var(--ac,var(--lv));background:var(--ab,var(--lv-bg))}
+.tag-dot{width:7px;height:7px;border-radius:50%;background:var(--g1);flex-shrink:0;transition:background .2s}
+.tag.sel .tag-dot{background:var(--ac,var(--lv))}
+.tag-nm{font-size:11px;font-weight:700;color:var(--g3)}
+.tag-dt{font-size:9px;color:var(--g2);margin-top:1px;line-height:1.3}
+.tag-pt{font-size:10px;font-weight:800;color:var(--g2);transition:color .2s;white-space:nowrap;margin-left:auto;padding-left:4px}
+.tag.sel .tag-pt{color:var(--ac,var(--lv))}
+.dom-note{font-size:9px;color:var(--g1);margin-top:3px;padding:0 1px}
+
+.bot{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;background:white;border-top:1px solid #EDE8FC;padding:7px 14px 12px;box-shadow:0 -2px 10px rgba(140,120,200,.10)}
+.bot-note{font-size:10px;color:var(--g2);line-height:1.5;text-align:center}
+
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.pop{animation:pop .18s ease}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hdr">
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-title">SLE Calculator</div>
+      <div class="hdr-sub">2019 EULAR/ACR 분류기준</div>
+    </div>
+    <button class="rst" onclick="resetAll()">초기화</button>
+  </div>
+</div>
+
+<div class="score-strip">
+  <div class="sc-ring">
+    <svg width="58" height="58" viewBox="0 0 58 58">
+      <circle class="rb" cx="29" cy="29" r="24.5"/>
+      <circle class="rf" id="rf" cx="29" cy="29" r="24.5"/>
+    </svg>
+    <div class="sc-txt">
+      <span class="sc-n" id="scn">-</span>
+      <span class="sc-d">/93점</span>
+    </div>
+  </div>
+  <div class="sc-info">
+    <div class="sc-pill sp-pend" id="spill">ANA 확인 필요</div>
+    <div class="sc-txt2" id="stxt">Entry criterion(ANA)을 먼저 선택하세요</div>
+  </div>
+</div>
+
+<div class="ana-row" id="ana-row" onclick="toggleAna()">
+  <div class="ana-lbl">
+    <div class="ana-nm">ANA ≥ 1:80 양성<span class="etag">Entry</span></div>
+    <div class="ana-sb">HEp-2 세포 기준 — 필수 충족 항목</div>
+  </div>
+  <div class="tog"></div>
+</div>
+
+<div class="domains" id="domains"></div>
+</div>
+
+<div class="bot">
+  <div class="bot-note">각 도메인 내 최고점 1개만 반영 &nbsp;·&nbsp; <strong>ANA양성 + ≥10점</strong> → SLE 분류</div>
+</div>
+
+<script>
+const D=[
+  {id:'con',nm:'Constitutional',ic:'🌡️',ac:'#C09020',ab:'#FDF0D0',
+   it:[{id:'fev',nm:'발열',dt:'> 38.3°C, 타원인 배제',pt:2}]},
+  {id:'hem',nm:'Hematological',ic:'🩸',ac:'#D0607A',ab:'#FAE0E4',
+   it:[{id:'aiha',nm:'자가면역 용혈성 빈혈',dt:'Coombs+',pt:4},
+       {id:'leuko',nm:'백혈구 감소증',dt:'WBC < 4,000/mm³',pt:3},
+       {id:'thrombo',nm:'혈소판 감소증',dt:'< 100,000/mm³',pt:4}]},
+  {id:'neu',nm:'Neuropsychiatric',ic:'🧠',ac:'#7C6AC0',ab:'#EDE8FC',
+   it:[{id:'del',nm:'섬망',dt:'Acute confusional state',pt:2},
+       {id:'psy',nm:'정신증',dt:'Psychosis',pt:3},
+       {id:'sei',nm:'경련',dt:'Seizure',pt:5}]},
+  {id:'muc',nm:'Mucocutaneous',ic:'🌸',ac:'#D08040',ab:'#FAE8DC',
+   it:[{id:'alo',nm:'비흉터성 탈모',dt:'Non-scarring alopecia',pt:2},
+       {id:'oral',nm:'구강 궤양',dt:'임상의 관찰',pt:2},
+       {id:'sub',nm:'아급성/원판형 루푸스',dt:'Subacute cutaneous or discoid',pt:4},
+       {id:'ask',nm:'급성 피부 루푸스',dt:'Malar rash 포함',pt:6}]},
+  {id:'ser',nm:'Serosal',ic:'💧',ac:'#4A9EC4',ab:'#D8EEF8',
+   it:[{id:'eff',nm:'흉막/심낭 삼출',dt:'영상 확인',pt:5},
+       {id:'per',nm:'급성 심낭염',dt:'≥2가지 기준 충족',pt:6}]},
+  {id:'msk',nm:'Musculoskeletal',ic:'🦴',ac:'#2A7D5E',ab:'#D6F0E8',
+   it:[{id:'jnt',nm:'관절 침범',dt:'≥2관절, 활막염 또는 ≥30분 조조강직',pt:6}]},
+  {id:'ren',nm:'Renal',ic:'🫘',ac:'#5C4E9E',ab:'#E8E4F8',
+   it:[{id:'pro',nm:'단백뇨 > 0.5g/24h',dt:'또는 단백/Cr비 ≥0.5',pt:4},
+       {id:'ln25',nm:'LN Class II/V',dt:'신장 생검',pt:8},
+       {id:'ln34',nm:'LN Class III/IV',dt:'신장 생검',pt:10}]},
+  {id:'apl',nm:'Antiphospholipid Ab',ic:'🔬',ac:'#D0607A',ab:'#FAE0E4',
+   it:[{id:'apla',nm:'항인지질 항체 양성',dt:'항CL·항β2GP1·루푸스 항응고인자',pt:2}]},
+  {id:'com',nm:'Complement',ic:'🧪',ac:'#4A9EC4',ab:'#D8EEF8',
+   it:[{id:'c34',nm:'C3 또는 C4 감소',dt:'정상 하한 미만',pt:3},
+       {id:'c3c4',nm:'C3 및 C4 모두 감소',dt:'둘 다 정상 하한 미만',pt:4}]},
+  {id:'sab',nm:'SLE-specific Ab',ic:'⚗️',ac:'#7C6AC0',ab:'#EDE8FC',
+   it:[{id:'dsdna',nm:'항dsDNA 양성',dt:'검증 검사, 2회 이상 권장',pt:6},
+       {id:'sm',nm:'항Smith 양성',dt:'Anti-Sm antibody',pt:6}]}
+];
+
+let st={ana:false,sel:{}};
+
+function build(){
+  const wrap=document.getElementById('domains');
+  D.forEach(d=>{
+    const useWide=d.it.length<=2;
+    const tags=d.it.map(i=>`
+      <div class="tag${useWide?' wide':''}" id="tag-${i.id}"
+           style="--ac:${d.ac};--ab:${d.ab}"
+           onclick="toggleItem('${d.id}','${i.id}')">
+        <div class="tag-dot"></div>
+        <div style="flex:1;min-width:0">
+          <div class="tag-nm">${i.nm}</div>
+          ${useWide?`<div class="tag-dt">${i.dt}</div>`:''}
+        </div>
+        <div class="tag-pt">+${i.pt}</div>
+      </div>`).join('');
+    const card=document.createElement('div');
+    card.className='dom-card';
+    card.innerHTML=`
+      <div class="dom-hdr" onclick="togDom('${d.id}')">
+        <div class="dom-ico" style="background:${d.ab}">${d.ic}</div>
+        <div class="dom-nm">${d.nm}</div>
+        <div class="dom-badge" id="db-${d.id}">0점</div>
+        <div class="dom-arr" id="da-${d.id}">▼</div>
+      </div>
+      <div class="dom-body" id="dbd-${d.id}">
+        <div class="tag-row">${tags}</div>
+        ${d.it.length>1?`<div class="dom-note">※ 최고점 항목 1개만 반영</div>`:''}
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function togDom(id){
+  document.getElementById('dbd-'+id).classList.toggle('op');
+  document.getElementById('da-'+id).classList.toggle('op');
+}
+
+function toggleAna(){
+  st.ana=!st.ana;
+  document.getElementById('ana-row').classList.toggle('on',st.ana);
+  calc();
+}
+
+function toggleItem(did,iid){
+  st.sel[iid]=!st.sel[iid];
+  const t=document.getElementById('tag-'+iid);
+  t.classList.toggle('sel',st.sel[iid]);
+  t.classList.add('pop');
+  setTimeout(()=>t.classList.remove('pop'),200);
+  calc();
+}
+
+function calc(){
+  let tot=0;
+  D.forEach(d=>{
+    let ds=0;
+    d.it.forEach(i=>{if(st.sel[i.id])ds=Math.max(ds,i.pt)});
+    tot+=ds;
+    const b=document.getElementById('db-'+d.id);
+    if(ds>0){b.className='dom-badge lit';b.style.background=d.ac;b.textContent=ds+'점'}
+    else{b.className='dom-badge';b.style.background='';b.textContent='0점'}
+  });
+  const circ=153,rf=document.getElementById('rf');
+  rf.style.strokeDashoffset=st.ana?circ-Math.min(1,tot/93)*circ:circ;
+  const scn=document.getElementById('scn'),sp=document.getElementById('spill'),st2=document.getElementById('stxt');
+  scn.textContent=st.ana?tot:'-';
+  if(!st.ana){rf.style.stroke='#C0BCE0';sp.className='sc-pill sp-no';sp.textContent='ANA 음성';st2.textContent='Entry criterion 미충족'}
+  else if(tot>=10){rf.style.stroke='#4DAE8A';sp.className='sc-pill sp-pass';sp.textContent='SLE 분류 기준 충족 ✓';st2.textContent='총 '+tot+'점 — 기준 달성'}
+  else{rf.style.stroke='#8B7CC8';sp.className='sc-pill sp-fail';sp.textContent='기준 미충족';st2.textContent='총 '+tot+'점 — '+(10-tot)+'점 더 필요'}
+}
+
+function resetAll(){
+  st={ana:false,sel:{}};
+  document.getElementById('ana-row').classList.remove('on');
+  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('sel'));
+  document.querySelectorAll('.dom-badge').forEach(b=>{b.className='dom-badge';b.style.background='';b.textContent='0점'});
+  calc();
+}
+
+build();calc();
+</script>
+</body>
+</html>
