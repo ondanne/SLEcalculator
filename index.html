@@ -3,30 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>SLE Calculator</title>
+<title>Rheumatology Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --lv:#8B7CC8;--lv-bg:#EDE8FC;--lv-lt:#F5F3FF;
-  --mn:#4DAE8A;--mn-bg:#D6F0E8;
-  --pc:#E08050;--pc-bg:#FAE8DC;
+  --mn:#4DAE8A;--mn-bg:#D6F0E8;--mn-deep:#2A7D5E;
   --sk:#4A9EC4;--sk-bg:#D8EEF8;
   --rs:#D0607A;--rs-bg:#FAE0E4;
   --bt:#C09020;--bt-bg:#FDF0D0;
+  --pc:#D08040;--pc-bg:#FAE8DC;
   --g0:#F4F1FC;--g1:#C8C0E0;--g2:#8880A8;--g3:#2E2850;
   --r:14px;--rs2:8px;
   --sh:0 2px 12px rgba(100,80,180,0.10);
+  --tab-sle:#8B7CC8; --tab-crmo:#4DAE8A;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Nunito',sans-serif;background:linear-gradient(150deg,#F0EDFB 0%,#E8F5F0 60%,#FCF0F2 100%);color:var(--g3);min-height:100vh}
 .app{max-width:440px;margin:0 auto;padding-bottom:72px}
 
-.hdr{background:linear-gradient(120deg,#C9BFF0,#A8DCC8);padding:12px 14px 10px;position:sticky;top:0;z-index:99;box-shadow:0 2px 10px rgba(140,120,200,.18)}
-.hdr-row{display:flex;align-items:center;justify-content:space-between}
+/* ── Header ── */
+.hdr{background:linear-gradient(120deg,#C9BFF0,#A8DCC8);padding:12px 14px 0;position:sticky;top:0;z-index:99;box-shadow:0 2px 10px rgba(140,120,200,.18)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .hdr-title{font-size:16px;font-weight:800;color:#3C2E80}
 .hdr-sub{font-size:10px;color:#2A7D5E;font-weight:700;letter-spacing:.5px;margin-top:1px}
-.rst{background:rgba(255,255,255,.45);border:none;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#5C4E9E;padding:5px 10px;border-radius:10px;cursor:pointer}
+.rst{background:rgba(255,255,255,.45);border:none;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#5C4E9E;padding:5px 10px;border-radius:10px;cursor:pointer;white-space:nowrap}
 
+/* ── Tabs ── */
+.tabs{display:flex;gap:6px;padding-bottom:0}
+.tab{flex:1;padding:8px 6px 10px;border:none;border-radius:12px 12px 0 0;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;background:rgba(255,255,255,.3);color:#5C4E9E}
+.tab.active-sle{background:white;color:var(--lv)}
+.tab.active-crmo{background:white;color:var(--mn-deep)}
+.tab-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle;background:currentColor;opacity:.6}
+
+/* ── Panels ── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── Score strip ── */
 .score-strip{background:white;margin:8px 10px 0;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);display:flex;align-items:center;gap:10px}
 .sc-ring{position:relative;width:58px;height:58px;flex-shrink:0}
 .sc-ring svg{transform:rotate(-90deg)}
@@ -39,21 +53,28 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(150deg,#F0EDFB 0
 .sc-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;display:inline-block;margin-bottom:4px;transition:all .3s}
 .sp-pend{background:var(--bt-bg);color:var(--bt)}
 .sp-no{background:var(--rs-bg);color:var(--rs)}
-.sp-pass{background:var(--mn-bg);color:#2A7D5E}
+.sp-pass{background:var(--mn-bg);color:var(--mn-deep)}
 .sp-fail{background:var(--lv-bg);color:var(--lv)}
+.sp-prob{background:#E8F4FF;color:#2A6EA6}
 .sc-txt2{font-size:10px;color:var(--g2);line-height:1.4}
 
+/* ── ANA toggle ── */
 .ana-row{margin:6px 10px 0;background:white;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);display:flex;align-items:center;gap:10px;cursor:pointer;border:2px solid transparent;transition:border-color .25s,background .25s;user-select:none;-webkit-user-select:none}
 .ana-row.on{border-color:#C9BFF0;background:var(--lv-lt)}
 .ana-lbl{flex:1}
 .ana-nm{font-size:12px;font-weight:700}
 .ana-sb{font-size:10px;color:var(--g2);margin-top:1px}
 .etag{font-size:9px;background:#EDE8FC;color:#8B7CC8;padding:2px 5px;border-radius:5px;margin-left:4px;vertical-align:middle}
+.etag.green{background:#D6F0E8;color:#2A7D5E}
 .tog{width:40px;height:22px;border-radius:11px;background:#DDD8F0;position:relative;flex-shrink:0;transition:background .3s}
 .tog::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:white;top:3px;left:3px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .ana-row.on .tog{background:var(--lv)}
 .ana-row.on .tog::after{transform:translateX(18px)}
+.crmo-entry.on .tog{background:var(--mn)}
+.crmo-entry.on .tog::after{transform:translateX(18px)}
+.crmo-entry.on{border-color:#A8DCC8;background:#F0FBF6}
 
+/* ── Domains ── */
 .domains{margin:6px 10px 0;display:flex;flex-direction:column;gap:5px}
 .dom-card{background:white;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
 .dom-hdr{display:flex;align-items:center;gap:7px;padding:9px 11px;cursor:pointer;user-select:none;-webkit-user-select:none}
@@ -63,7 +84,6 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(150deg,#F0EDFB 0
 .dom-badge.lit{color:white}
 .dom-arr{font-size:9px;color:var(--g1);margin-left:2px;transition:transform .3s;flex-shrink:0}
 .dom-arr.op{transform:rotate(180deg)}
-
 .dom-body{display:none;padding:0 9px 9px;flex-direction:column;gap:3px}
 .dom-body.op{display:flex}
 .tag-row{display:flex;flex-wrap:wrap;gap:4px}
@@ -78,60 +98,225 @@ body{font-family:'Nunito',sans-serif;background:linear-gradient(150deg,#F0EDFB 0
 .tag.sel .tag-pt{color:var(--ac,var(--lv))}
 .dom-note{font-size:9px;color:var(--g1);margin-top:3px;padding:0 1px}
 
+/* ── Radio-style options (for CRMO score options) ── */
+.opt-group{display:flex;flex-direction:column;gap:3px}
+.opt{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rs2);background:var(--g0);border:1.5px solid transparent;cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none}
+.opt.sel{border-color:var(--ac,var(--mn));background:var(--ab,var(--mn-bg))}
+.opt-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--g1);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;background:white}
+.opt.sel .opt-dot{border-color:var(--ac,var(--mn));background:var(--ac,var(--mn))}
+.opt-dot::after{content:'';width:5px;height:5px;border-radius:50%;background:white;opacity:0;transition:opacity .2s}
+.opt.sel .opt-dot::after{opacity:1}
+.opt-nm{font-size:11px;font-weight:700;color:var(--g3);flex:1}
+.opt-pt{font-size:10px;font-weight:800;color:var(--g2);white-space:nowrap;transition:color .2s}
+.opt.sel .opt-pt{color:var(--ac,var(--mn))}
+
+/* ── Criteria tabs inside CRMO ── */
+.crmo-sub-tabs{display:flex;gap:4px;margin:6px 10px 0}
+.cst{flex:1;padding:6px 4px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.6);color:var(--g2);transition:all .25s;border:1.5px solid transparent}
+.cst.on{background:white;color:var(--mn-deep);border-color:#A8DCC8;box-shadow:var(--sh)}
+
+.crmo-view{display:none}
+.crmo-view.on{display:block}
+
+/* ── Section label ── */
+.sec-lbl{font-size:10px;font-weight:700;color:var(--g1);letter-spacing:.8px;text-transform:uppercase;margin:10px 10px 4px;padding-left:2px}
+
+/* ── Jansson major/minor ── */
+.criterion-list{margin:0 10px;display:flex;flex-direction:column;gap:5px}
+.crit-item{background:white;border-radius:var(--r);box-shadow:var(--sh);padding:10px 12px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;border:2px solid transparent;transition:all .25s;user-select:none;-webkit-user-select:none}
+.crit-item.sel-major{border-color:#4DAE8A;background:#F0FBF6}
+.crit-item.sel-minor{border-color:#4A9EC4;background:#EEF7FC}
+.crit-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--g1);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .25s;background:white;margin-top:1px}
+.crit-item.sel-major .crit-check,.crit-item.sel-minor .crit-check{border-color:var(--chk-color,#4DAE8A);background:var(--chk-color,#4DAE8A)}
+.crit-check::after{content:'✓';font-size:11px;color:white;font-weight:800;opacity:0;transition:opacity .2s}
+.crit-item.sel-major .crit-check::after,.crit-item.sel-minor .crit-check::after{opacity:1}
+.crit-body{flex:1}
+.crit-nm{font-size:12px;font-weight:700;color:var(--g3)}
+.crit-dt{font-size:10px;color:var(--g2);margin-top:2px;line-height:1.4}
+.badge-type{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:5px;vertical-align:middle}
+.badge-maj{background:#D6F0E8;color:#2A7D5E}
+.badge-min{background:#D8EEF8;color:#2A6EA6}
+
+/* ── Jansson result box ── */
+.jans-result{margin:8px 10px 0;background:white;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh)}
+.jans-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.jans-label{font-size:11px;color:var(--g2)}
+.jans-val{font-size:12px;font-weight:700;color:var(--g3)}
+.jans-verdict{font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;text-align:center;margin-top:6px;transition:all .3s}
+
+/* ── Bottom ── */
 .bot{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;background:white;border-top:1px solid #EDE8FC;padding:7px 14px 12px;box-shadow:0 -2px 10px rgba(140,120,200,.10)}
 .bot-note{font-size:10px;color:var(--g2);line-height:1.5;text-align:center}
 
-@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .pop{animation:pop .18s ease}
 </style>
 </head>
 <body>
 <div class="app">
 
+<!-- Header -->
 <div class="hdr">
-  <div class="hdr-row">
+  <div class="hdr-top">
     <div>
-      <div class="hdr-title">SLE Calculator</div>
-      <div class="hdr-sub">2019 EULAR/ACR 분류기준</div>
+      <div class="hdr-title">Rheumatology Calculator</div>
+      <div class="hdr-sub">소아·성인 류마티스 진단 보조</div>
     </div>
-    <button class="rst" onclick="resetAll()">초기화</button>
+    <button class="rst" id="rst-btn" onclick="resetCurrent()">초기화</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active-sle" id="tab-sle" onclick="switchTab('sle')">
+      <span class="tab-dot"></span>SLE
+    </button>
+    <button class="tab" id="tab-crmo" onclick="switchTab('crmo')">
+      <span class="tab-dot"></span>CRMO/CNO
+    </button>
   </div>
 </div>
 
-<div class="score-strip">
-  <div class="sc-ring">
-    <svg width="58" height="58" viewBox="0 0 58 58">
-      <circle class="rb" cx="29" cy="29" r="24.5"/>
-      <circle class="rf" id="rf" cx="29" cy="29" r="24.5"/>
-    </svg>
-    <div class="sc-txt">
-      <span class="sc-n" id="scn">-</span>
-      <span class="sc-d">/93점</span>
+<!-- ════════════ SLE PANEL ════════════ -->
+<div class="panel active" id="panel-sle">
+
+  <div class="score-strip">
+    <div class="sc-ring">
+      <svg width="58" height="58" viewBox="0 0 58 58">
+        <circle class="rb" cx="29" cy="29" r="24.5"/>
+        <circle class="rf" id="sle-rf" cx="29" cy="29" r="24.5"/>
+      </svg>
+      <div class="sc-txt">
+        <span class="sc-n" id="sle-scn">-</span>
+        <span class="sc-d">/93점</span>
+      </div>
+    </div>
+    <div class="sc-info">
+      <div class="sc-pill sp-pend" id="sle-pill">ANA 확인 필요</div>
+      <div class="sc-txt2" id="sle-txt2">Entry criterion(ANA)을 먼저 선택하세요</div>
     </div>
   </div>
-  <div class="sc-info">
-    <div class="sc-pill sp-pend" id="spill">ANA 확인 필요</div>
-    <div class="sc-txt2" id="stxt">Entry criterion(ANA)을 먼저 선택하세요</div>
+
+  <div class="ana-row" id="sle-ana" onclick="toggleAna()">
+    <div class="ana-lbl">
+      <div class="ana-nm">ANA ≥ 1:80 양성<span class="etag">Entry</span></div>
+      <div class="ana-sb">HEp-2 세포 기준 — 필수 충족 항목</div>
+    </div>
+    <div class="tog"></div>
   </div>
+
+  <div class="domains" id="sle-domains"></div>
 </div>
 
-<div class="ana-row" id="ana-row" onclick="toggleAna()">
-  <div class="ana-lbl">
-    <div class="ana-nm">ANA ≥ 1:80 양성<span class="etag">Entry</span></div>
-    <div class="ana-sb">HEp-2 세포 기준 — 필수 충족 항목</div>
-  </div>
-  <div class="tog"></div>
-</div>
+<!-- ════════════ CRMO/CNO PANEL ════════════ -->
+<div class="panel" id="panel-crmo">
 
-<div class="domains" id="domains"></div>
-</div>
+  <!-- Sub-tab selector -->
+  <div class="crmo-sub-tabs">
+    <button class="cst on" id="cst-jansson" onclick="switchCrmoView('jansson')">Jansson 진단기준</button>
+    <button class="cst" id="cst-score" onclick="switchCrmoView('score')">Jansson 임상점수</button>
+    <button class="cst" id="cst-bristol" onclick="switchCrmoView('bristol')">Bristol</button>
+  </div>
+
+  <!-- ── Jansson Criteria (major/minor) ── -->
+  <div class="crmo-view on" id="crmo-jansson">
+    <div class="score-strip" style="margin-top:8px">
+      <div class="sc-ring">
+        <svg width="58" height="58" viewBox="0 0 58 58">
+          <circle class="rb" cx="29" cy="29" r="24.5"/>
+          <circle class="rf" id="jans-rf" cx="29" cy="29" r="24.5" style="stroke:#4DAE8A"/>
+        </svg>
+        <div class="sc-txt">
+          <span class="sc-n" id="jans-n" style="font-size:13px;text-align:center;line-height:1.2"></span>
+        </div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-pill sp-pend" id="jans-pill">기준 선택 필요</div>
+        <div class="sc-txt2" id="jans-txt2">주요/부요 기준을 선택하세요</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">주요 기준 (Major)</div>
+    <div class="criterion-list" id="jans-major-list"></div>
+
+    <div class="sec-lbl">부요 기준 (Minor)</div>
+    <div class="criterion-list" id="jans-minor-list"></div>
+
+    <div style="margin:6px 10px 0;background:white;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);font-size:10px;color:var(--g2);line-height:1.6">
+      <strong style="color:var(--g3)">진단 기준:</strong> 주요 2개 이상 <em>또는</em> 주요 1개 + 부요 3개 이상
+    </div>
+  </div>
+
+  <!-- ── Jansson Clinical Score ── -->
+  <div class="crmo-view" id="crmo-score">
+
+    <div class="score-strip" style="margin-top:8px">
+      <div class="sc-ring">
+        <svg width="58" height="58" viewBox="0 0 58 58">
+          <circle class="rb" cx="29" cy="29" r="24.5"/>
+          <circle class="rf" id="jscore-rf" cx="29" cy="29" r="24.5" style="stroke:#4A9EC4"/>
+        </svg>
+        <div class="sc-txt">
+          <span class="sc-n" id="jscore-n">0</span>
+          <span class="sc-d">/63점</span>
+        </div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-pill sp-pend" id="jscore-pill">해당 없음</div>
+        <div class="sc-txt2" id="jscore-txt2">항목을 선택하면 점수가 계산됩니다</div>
+      </div>
+    </div>
+
+    <div class="domains" id="jscore-domains"></div>
+
+    <div style="margin:6px 10px 0;background:white;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);font-size:10px;color:var(--g2);line-height:1.6">
+      <strong style="color:var(--g3)">판정:</strong> ≥39점 = CNO 가능성 높음 (특이도 98%) · ≥29점 = 불확실 진단 (민감도 89%)<br>
+      <span style="color:#aaa">Jansson et al., Arthritis Rheum 2009</span>
+    </div>
+  </div>
+
+  <!-- ── Bristol Criteria ── -->
+  <div class="crmo-view" id="crmo-bristol">
+
+    <div class="score-strip" style="margin-top:8px">
+      <div class="sc-ring">
+        <svg width="58" height="58" viewBox="0 0 58 58">
+          <circle class="rb" cx="29" cy="29" r="24.5"/>
+          <circle class="rf" id="brist-rf" cx="29" cy="29" r="24.5" style="stroke:#D08040"/>
+        </svg>
+        <div class="sc-txt">
+          <span class="sc-n" id="brist-n" style="font-size:13px;text-align:center;line-height:1.2"></span>
+        </div>
+      </div>
+      <div class="sc-info">
+        <div class="sc-pill sp-pend" id="brist-pill">선택 필요</div>
+        <div class="sc-txt2" id="brist-txt2">해당 항목을 선택하세요</div>
+      </div>
+    </div>
+
+    <!-- Entry -->
+    <div class="sec-lbl">필수 Entry</div>
+    <div class="criterion-list" id="brist-entry-list"></div>
+
+    <div class="sec-lbl">Supportive criteria</div>
+    <div class="criterion-list" id="brist-support-list"></div>
+
+    <div style="margin:6px 10px 0;background:white;border-radius:var(--r);padding:10px 12px;box-shadow:var(--sh);font-size:10px;color:var(--g2);line-height:1.6">
+      <strong style="color:var(--g3)">진단:</strong> Entry 모두 충족 + Supportive ≥1개<br>
+      <span style="color:#aaa">Roderick et al., Pediatr Rheumatol 2016</span>
+    </div>
+  </div>
+
+</div><!-- end crmo panel -->
+
+</div><!-- app -->
 
 <div class="bot">
-  <div class="bot-note">각 도메인 내 최고점 1개만 반영 &nbsp;·&nbsp; <strong>ANA양성 + ≥10점</strong> → SLE 분류</div>
+  <div class="bot-note" id="bot-note">각 도메인 내 최고점 1개만 반영 · <strong>ANA양성 + ≥10점</strong> → SLE 분류</div>
 </div>
 
 <script>
-const D=[
+/* ══════════════════════════════════════
+   SLE DATA
+══════════════════════════════════════ */
+const SLE_D=[
   {id:'con',nm:'Constitutional',ic:'🌡️',ac:'#C09020',ab:'#FDF0D0',
    it:[{id:'fev',nm:'발열',dt:'> 38.3°C, 타원인 배제',pt:2}]},
   {id:'hem',nm:'Hematological',ic:'🩸',ac:'#D0607A',ab:'#FAE0E4',
@@ -166,16 +351,82 @@ const D=[
        {id:'sm',nm:'항Smith 양성',dt:'Anti-Sm antibody',pt:6}]}
 ];
 
-let st={ana:false,sel:{}};
+/* ══════════════════════════════════════
+   JANSSON CRITERIA (major/minor) 2007
+══════════════════════════════════════ */
+const JANS_MAJOR=[
+  {id:'jm1',nm:'다골성 골병변 방사선 확인',dt:'X-ray상 용해성/경화성 골병변 (다발성)'},
+  {id:'jm2',nm:'다발성 병변',dt:'2개 이상의 골에서 병변 확인'},
+  {id:'jm3',nm:'장골 침범',dt:'손발바닥 농포증 / 건선'},
+  {id:'jm4',nm:'무균성 생검',dt:'염증·섬유화·경화 소견, 균 음성'}
+];
+const JANS_MINOR=[
+  {id:'ji1',nm:'정상 백혈구 및 혈액배양 음성',dt:'감염 시사 소견 없음'},
+  {id:'ji2',nm:'CRP/ESR 경미한 상승',dt:'정상~경도 상승 (감염보다 낮은 수준)'},
+  {id:'ji3',nm:'단골성 병변',dt:'영상에서 단일 골 침범'},
+  {id:'ji4',nm:'장기간 골 통증',dt:'> 6개월, 특히 야간 악화'},
+  {id:'ji5',nm:'소아·청소년 발병',dt:'주로 7~12세, 여아 우세'},
+  {id:'ji6',nm:'자가면역 동반 질환',dt:'IBD, 건선, 여드름 등'}
+];
 
-function build(){
-  const wrap=document.getElementById('domains');
-  D.forEach(d=>{
+/* ══════════════════════════════════════
+   JANSSON CLINICAL SCORE 2009
+   (로지스틱 회귀 계수 기반, 총 63점)
+══════════════════════════════════════ */
+const JSCORE_D=[
+  {id:'js_clin',nm:'임상 소견',ic:'🩺',ac:'#4DAE8A',ab:'#D6F0E8',
+   items:[
+     {id:'js_multifocal',nm:'다발성 골병변',dt:'영상에서 2개 이상의 골',pts:13,radio:false},
+     {id:'js_no_abscess',nm:'피하 농양 없음',dt:'연부조직 농양 부재',pts:8,radio:false},
+     {id:'js_no_sequestrum',nm:'사골 없음',dt:'X-ray상 sequestrum 부재',pts:7,radio:false}
+   ]},
+  {id:'js_lab',nm:'검사 소견',ic:'🔬',ac:'#4A9EC4',ab:'#D8EEF8',
+   items:[
+     {id:'js_wbc_norm',nm:'WBC 정상',dt:'WBC < 11,000/mm³',pts:8,radio:false},
+     {id:'js_crp_low',nm:'CRP 경미하게 상승 또는 정상',dt:'CRP ≤ 1mg/dL (10mg/L)',pts:10,radio:false},
+     {id:'js_blood_cx_neg',nm:'혈액배양 음성',dt:'Sterile blood culture',pts:10,radio:false}
+   ]},
+  {id:'js_radio',nm:'영상 소견',ic:'🖼️',ac:'#7C6AC0',ab:'#EDE8FC',
+   items:[
+     {id:'js_sclerosis',nm:'골경화 병변',dt:'X-ray/MRI상 sclerosis 확인',pts:7,radio:false}
+   ]}
+];
+
+/* ══════════════════════════════════════
+   BRISTOL CRITERIA 2016
+══════════════════════════════════════ */
+const BRIST_ENTRY=[
+  {id:'be1',nm:'골통증',dt:'뼈 부위 통증 (국소적)'},
+  {id:'be2',nm:'감염·종양 배제',dt:'임상·검사·생검으로 감염·악성 종양 배제'},
+  {id:'be3',nm:'특징적 영상 소견',dt:'MRI 또는 X-ray상 CNO 전형적 골수 부종/경화'}
+];
+const BRIST_SUPPORT=[
+  {id:'bs1',nm:'다발성 병변',dt:'≥2개 골 침범 (영상 확인)'},
+  {id:'bs2',nm:'전형적 호발 부위',dt:'쇄골, 하악골, 척추, 골반, 장골 형단부'},
+  {id:'bs3',nm:'쌍측 대칭성 병변',dt:'양측 대칭 분포'},
+  {id:'bs4',nm:'척추 또는 골반 침범',dt:'척추 골절 또는 골반 병변'},
+  {id:'bs5',nm:'자가면역 동반',dt:'IBD, 건선, PPP, 여드름 등'},
+  {id:'bs6',nm:'항생제 무반응',dt:'적절한 항생제 치료에 반응 없음'},
+  {id:'bs7',nm:'생검: 비특이 염증',dt:'균 음성, 섬유화/염증 소견 (감염·종양 배제)'}
+];
+
+/* ══ STATE ══ */
+let sleState={ana:false,sel:{}};
+let jansState={major:{},minor:{}};
+let jscoreState={sel:{}};
+let bristState={entry:{},support:{}};
+let currentTab='sle';
+let currentCrmoView='jansson';
+
+/* ══ BUILD SLE ══ */
+function buildSle(){
+  const wrap=document.getElementById('sle-domains');
+  SLE_D.forEach(d=>{
     const useWide=d.it.length<=2;
     const tags=d.it.map(i=>`
-      <div class="tag${useWide?' wide':''}" id="tag-${i.id}"
+      <div class="tag${useWide?' wide':''}" id="stag-${i.id}"
            style="--ac:${d.ac};--ab:${d.ab}"
-           onclick="toggleItem('${d.id}','${i.id}')">
+           onclick="sToggle('${d.id}','${i.id}')">
         <div class="tag-dot"></div>
         <div style="flex:1;min-width:0">
           <div class="tag-nm">${i.nm}</div>
@@ -186,13 +437,13 @@ function build(){
     const card=document.createElement('div');
     card.className='dom-card';
     card.innerHTML=`
-      <div class="dom-hdr" onclick="togDom('${d.id}')">
+      <div class="dom-hdr" onclick="togDom('sdb-${d.id}','sda-${d.id}')">
         <div class="dom-ico" style="background:${d.ab}">${d.ic}</div>
         <div class="dom-nm">${d.nm}</div>
-        <div class="dom-badge" id="db-${d.id}">0점</div>
-        <div class="dom-arr" id="da-${d.id}">▼</div>
+        <div class="dom-badge" id="sdb-${d.id}">0점</div>
+        <div class="dom-arr" id="sda-${d.id}">▼</div>
       </div>
-      <div class="dom-body" id="dbd-${d.id}">
+      <div class="dom-body" id="sdbd-${d.id}">
         <div class="tag-row">${tags}</div>
         ${d.it.length>1?`<div class="dom-note">※ 최고점 항목 1개만 반영</div>`:''}
       </div>`;
@@ -200,54 +451,251 @@ function build(){
   });
 }
 
-function togDom(id){
-  document.getElementById('dbd-'+id).classList.toggle('op');
-  document.getElementById('da-'+id).classList.toggle('op');
+function togDom(bid,aid){
+  const b=document.getElementById(bid);
+  const a=document.getElementById(aid);
+  if(!b||!a)return;
+  const bodyId=bid.replace('db-','dbd-').replace('sdb-','sdbd-');
+  // find body by replacing pattern
+  const bodyEl=document.getElementById(bodyId.replace('sdbd-','').length>0?bodyId:'sdbd-'+bid.replace('sdb-',''));
+  // simpler:
+  const hdr=a.closest('.dom-hdr');
+  const body=hdr.nextElementSibling;
+  body.classList.toggle('op');
+  a.classList.toggle('op');
 }
 
 function toggleAna(){
-  st.ana=!st.ana;
-  document.getElementById('ana-row').classList.toggle('on',st.ana);
-  calc();
+  sleState.ana=!sleState.ana;
+  document.getElementById('sle-ana').classList.toggle('on',sleState.ana);
+  calcSle();
 }
-
-function toggleItem(did,iid){
-  st.sel[iid]=!st.sel[iid];
-  const t=document.getElementById('tag-'+iid);
-  t.classList.toggle('sel',st.sel[iid]);
-  t.classList.add('pop');
-  setTimeout(()=>t.classList.remove('pop'),200);
-  calc();
+function sToggle(did,iid){
+  sleState.sel[iid]=!sleState.sel[iid];
+  const t=document.getElementById('stag-'+iid);
+  t.classList.toggle('sel',sleState.sel[iid]);
+  t.classList.add('pop');setTimeout(()=>t.classList.remove('pop'),200);
+  calcSle();
 }
-
-function calc(){
+function calcSle(){
   let tot=0;
-  D.forEach(d=>{
+  SLE_D.forEach(d=>{
     let ds=0;
-    d.it.forEach(i=>{if(st.sel[i.id])ds=Math.max(ds,i.pt)});
+    d.it.forEach(i=>{if(sleState.sel[i.id])ds=Math.max(ds,i.pt)});
     tot+=ds;
-    const b=document.getElementById('db-'+d.id);
+    const b=document.getElementById('sdb-'+d.id);
+    if(!b)return;
     if(ds>0){b.className='dom-badge lit';b.style.background=d.ac;b.textContent=ds+'점'}
     else{b.className='dom-badge';b.style.background='';b.textContent='0점'}
   });
-  const circ=153,rf=document.getElementById('rf');
-  rf.style.strokeDashoffset=st.ana?circ-Math.min(1,tot/93)*circ:circ;
-  const scn=document.getElementById('scn'),sp=document.getElementById('spill'),st2=document.getElementById('stxt');
-  scn.textContent=st.ana?tot:'-';
-  if(!st.ana){rf.style.stroke='#C0BCE0';sp.className='sc-pill sp-no';sp.textContent='ANA 음성';st2.textContent='Entry criterion 미충족'}
-  else if(tot>=10){rf.style.stroke='#4DAE8A';sp.className='sc-pill sp-pass';sp.textContent='SLE 분류 기준 충족 ✓';st2.textContent='총 '+tot+'점 — 기준 달성'}
-  else{rf.style.stroke='#8B7CC8';sp.className='sc-pill sp-fail';sp.textContent='기준 미충족';st2.textContent='총 '+tot+'점 — '+(10-tot)+'점 더 필요'}
+  const circ=153,rf=document.getElementById('sle-rf');
+  rf.style.strokeDashoffset=sleState.ana?circ-Math.min(1,tot/93)*circ:circ;
+  const scn=document.getElementById('sle-scn'),sp=document.getElementById('sle-pill'),tx=document.getElementById('sle-txt2');
+  scn.textContent=sleState.ana?tot:'-';
+  if(!sleState.ana){rf.style.stroke='#C0BCE0';sp.className='sc-pill sp-no';sp.textContent='ANA 음성';tx.textContent='Entry criterion 미충족'}
+  else if(tot>=10){rf.style.stroke='#4DAE8A';sp.className='sc-pill sp-pass';sp.textContent='SLE 분류 기준 충족 ✓';tx.textContent='총 '+tot+'점 — 기준 달성'}
+  else{rf.style.stroke='#8B7CC8';sp.className='sc-pill sp-fail';sp.textContent='기준 미충족';tx.textContent='총 '+tot+'점 — '+(10-tot)+'점 더 필요'}
 }
 
-function resetAll(){
-  st={ana:false,sel:{}};
-  document.getElementById('ana-row').classList.remove('on');
-  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('sel'));
-  document.querySelectorAll('.dom-badge').forEach(b=>{b.className='dom-badge';b.style.background='';b.textContent='0점'});
-  calc();
+/* ══ BUILD JANSSON CRITERIA ══ */
+function buildJansson(){
+  function makeList(items,container,type){
+    const wrap=document.getElementById(container);
+    items.forEach(i=>{
+      const div=document.createElement('div');
+      div.className='crit-item';
+      div.id='jc-'+i.id;
+      div.style.setProperty('--chk-color',type==='major'?'#4DAE8A':'#4A9EC4');
+      div.innerHTML=`
+        <div class="crit-check"></div>
+        <div class="crit-body">
+          <div class="crit-nm">${i.nm}<span class="badge-type ${type==='major'?'badge-maj':'badge-min'}">${type==='major'?'주요':'부요'}</span></div>
+          <div class="crit-dt">${i.dt}</div>
+        </div>`;
+      div.onclick=()=>toggleJans(i.id,type,div);
+      wrap.appendChild(div);
+    });
+  }
+  makeList(JANS_MAJOR,'jans-major-list','major');
+  makeList(JANS_MINOR,'jans-minor-list','minor');
+}
+function toggleJans(id,type,el){
+  if(type==='major'){jansState.major[id]=!jansState.major[id];el.classList.toggle('sel-major',jansState.major[id])}
+  else{jansState.minor[id]=!jansState.minor[id];el.classList.toggle('sel-minor',jansState.minor[id])}
+  el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),200);
+  calcJansson();
+}
+function calcJansson(){
+  const maj=Object.values(jansState.major).filter(Boolean).length;
+  const min=Object.values(jansState.minor).filter(Boolean).length;
+  const circ=153,rf=document.getElementById('jans-rf');
+  const pct=Math.min(1,(maj*2+min*0.5)/6);
+  rf.style.strokeDashoffset=circ-pct*circ;
+  const n=document.getElementById('jans-n');
+  n.textContent='주요 '+maj+'\n부요 '+min;
+  n.style.whiteSpace='pre';n.style.fontSize='10px';n.style.textAlign='center';
+  const pill=document.getElementById('jans-pill'),txt=document.getElementById('jans-txt2');
+  const pass=(maj>=2)||(maj>=1&&min>=3);
+  if(maj===0&&min===0){pill.className='sc-pill sp-pend';pill.textContent='선택 필요';txt.textContent='기준 항목을 선택하세요'}
+  else if(pass){pill.className='sc-pill sp-pass';pill.textContent='CRMO/CNO 진단 충족 ✓';txt.textContent='주요 '+maj+'개 + 부요 '+min+'개'}
+  else{pill.className='sc-pill sp-fail';pill.textContent='기준 미충족';
+    if(maj>=1)txt.textContent='주요 1개 충족 — 부요 '+(3-min)+'개 더 필요';
+    else txt.textContent='주요 기준 최소 1개 필요';}
 }
 
-build();calc();
+/* ══ BUILD JANSSON SCORE ══ */
+function buildJscoreDomains(){
+  const wrap=document.getElementById('jscore-domains');
+  JSCORE_D.forEach(d=>{
+    const tags=d.items.map(i=>`
+      <div class="tag wide" id="jstag-${i.id}"
+           style="--ac:${d.ac};--ab:${d.ab}"
+           onclick="jsToggle('${i.id}',${i.pts})">
+        <div class="tag-dot"></div>
+        <div style="flex:1;min-width:0">
+          <div class="tag-nm">${i.nm}</div>
+          <div class="tag-dt">${i.dt}</div>
+        </div>
+        <div class="tag-pt">+${i.pts}</div>
+      </div>`).join('');
+    const card=document.createElement('div');
+    card.className='dom-card';
+    card.innerHTML=`
+      <div class="dom-hdr" onclick="togDomSimple(this)">
+        <div class="dom-ico" style="background:${d.ab}">${d.ic}</div>
+        <div class="dom-nm">${d.nm}</div>
+        <div class="dom-badge" id="jsdb-${d.id}">0점</div>
+        <div class="dom-arr">▼</div>
+      </div>
+      <div class="dom-body op">
+        <div class="tag-row">${tags}</div>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+function togDomSimple(hdr){
+  const body=hdr.nextElementSibling;
+  const arr=hdr.querySelector('.dom-arr');
+  body.classList.toggle('op');
+  arr.classList.toggle('op');
+}
+function jsToggle(iid,pts){
+  jscoreState.sel[iid]=!jscoreState.sel[iid];
+  const t=document.getElementById('jstag-'+iid);
+  t.classList.toggle('sel',jscoreState.sel[iid]);
+  t.classList.add('pop');setTimeout(()=>t.classList.remove('pop'),200);
+  calcJscore();
+}
+function calcJscore(){
+  let tot=0;
+  JSCORE_D.forEach(d=>{
+    let ds=0;
+    d.items.forEach(i=>{if(jscoreState.sel[i.id])ds+=i.pts});
+    tot+=ds;
+    const b=document.getElementById('jsdb-'+d.id);
+    if(!b)return;
+    if(ds>0){b.className='dom-badge lit';b.style.background=d.ac;b.textContent=ds+'점'}
+    else{b.className='dom-badge';b.style.background='';b.textContent='0점'}
+  });
+  const circ=153,rf=document.getElementById('jscore-rf');
+  rf.style.strokeDashoffset=circ-Math.min(1,tot/63)*circ;
+  document.getElementById('jscore-n').textContent=tot;
+  const pill=document.getElementById('jscore-pill'),txt=document.getElementById('jscore-txt2');
+  if(tot>=39){pill.className='sc-pill sp-pass';pill.textContent='CNO 가능성 높음 ✓';txt.textContent=tot+'점 ≥ 39점 (특이도 98%)'}
+  else if(tot>=29){pill.className='sc-pill sp-prob';pill.textContent='불확실 (추가 검사 필요)';txt.textContent=tot+'점 (29~38점 구간)'}
+  else{pill.className='sc-pill sp-fail';pill.textContent='CNO 가능성 낮음';txt.textContent=tot+'점 < 29점'}
+}
+
+/* ══ BUILD BRISTOL ══ */
+function buildBristol(){
+  function makeList(items,container,type){
+    const wrap=document.getElementById(container);
+    items.forEach(i=>{
+      const div=document.createElement('div');
+      div.className='crit-item';
+      div.id='bc-'+i.id;
+      div.style.setProperty('--chk-color',type==='entry'?'#D08040':'#4DAE8A');
+      div.innerHTML=`
+        <div class="crit-check"></div>
+        <div class="crit-body">
+          <div class="crit-nm">${i.nm}</div>
+          <div class="crit-dt">${i.dt}</div>
+        </div>`;
+      div.onclick=()=>toggleBristol(i.id,type,div);
+      wrap.appendChild(div);
+    });
+  }
+  makeList(BRIST_ENTRY,'brist-entry-list','entry');
+  makeList(BRIST_SUPPORT,'brist-support-list','support');
+}
+function toggleBristol(id,type,el){
+  if(type==='entry'){bristState.entry[id]=!bristState.entry[id];el.classList.toggle('sel-major',bristState.entry[id])}
+  else{bristState.support[id]=!bristState.support[id];el.classList.toggle('sel-minor',bristState.support[id])}
+  el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),200);
+  calcBristol();
+}
+function calcBristol(){
+  const entryAll=BRIST_ENTRY.every(i=>bristState.entry[i.id]);
+  const suppCount=Object.values(bristState.support).filter(Boolean).length;
+  const circ=153,rf=document.getElementById('brist-rf');
+  const pct=Math.min(1,(Object.values(bristState.entry).filter(Boolean).length/3*0.5)+(suppCount/7*0.5));
+  rf.style.strokeDashoffset=circ-pct*circ;
+  const n=document.getElementById('brist-n');
+  const entryCount=Object.values(bristState.entry).filter(Boolean).length;
+  n.textContent='Entry '+entryCount+'/3\nSupport '+suppCount;
+  n.style.whiteSpace='pre';n.style.fontSize='10px';n.style.textAlign='center';
+  const pill=document.getElementById('brist-pill'),txt=document.getElementById('brist-txt2');
+  if(entryCount===0&&suppCount===0){pill.className='sc-pill sp-pend';pill.textContent='선택 필요';txt.textContent='항목을 선택하세요';return}
+  if(entryAll&&suppCount>=1){pill.className='sc-pill sp-pass';pill.textContent='CRMO/CNO 진단 충족 ✓';txt.textContent='Entry 모두 충족 + Supportive '+suppCount+'개'}
+  else if(!entryAll){pill.className='sc-pill sp-fail';pill.textContent='Entry 미충족';txt.textContent='필수 Entry 항목 '+(3-entryCount)+'개 더 필요'}
+  else{pill.className='sc-pill sp-fail';pill.textContent='Supportive 부족';txt.textContent='Entry 완료 — Supportive 최소 1개 필요'}
+}
+
+/* ══ TAB / VIEW SWITCHING ══ */
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('panel-sle').classList.toggle('active',tab==='sle');
+  document.getElementById('panel-crmo').classList.toggle('active',tab==='crmo');
+  document.getElementById('tab-sle').className='tab'+(tab==='sle'?' active-sle':'');
+  document.getElementById('tab-crmo').className='tab'+(tab==='crmo'?' active-crmo':'');
+  const note=document.getElementById('bot-note');
+  if(tab==='sle')note.innerHTML='각 도메인 내 최고점 1개만 반영 · <strong>ANA양성 + ≥10점</strong> → SLE 분류';
+  else note.innerHTML='<strong>Jansson 진단기준</strong>: 주요≥2 또는 주요1+부요≥3 · <strong>임상점수</strong>: ≥39점=CNO 가능';
+}
+function switchCrmoView(v){
+  currentCrmoView=v;
+  ['jansson','score','bristol'].forEach(x=>{
+    document.getElementById('crmo-'+x).classList.toggle('on',x===v);
+    document.getElementById('cst-'+x).classList.toggle('on',x===v);
+    if(x==='score')document.getElementById('cst-score').classList.toggle('on',v==='score');
+  });
+}
+
+/* ══ RESET ══ */
+function resetCurrent(){
+  if(currentTab==='sle'){
+    sleState={ana:false,sel:{}};
+    document.getElementById('sle-ana').classList.remove('on');
+    document.querySelectorAll('#panel-sle .tag').forEach(t=>t.classList.remove('sel'));
+    document.querySelectorAll('#sle-domains .dom-badge').forEach(b=>{b.className='dom-badge';b.style.background='';b.textContent='0점'});
+    calcSle();
+  } else {
+    jansState={major:{},minor:{}};
+    jscoreState={sel:{}};
+    bristState={entry:{},support:{}};
+    document.querySelectorAll('#panel-crmo .crit-item').forEach(e=>{e.className='crit-item'});
+    document.querySelectorAll('#panel-crmo .tag').forEach(t=>t.classList.remove('sel'));
+    document.querySelectorAll('#panel-crmo .dom-badge').forEach(b=>{b.className='dom-badge';b.style.background='';b.textContent='0점'});
+    calcJansson();calcJscore();calcBristol();
+  }
+}
+
+/* ══ INIT ══ */
+buildSle();
+buildJansson();
+buildJscoreDomains();
+buildBristol();
+calcSle();calcJansson();calcJscore();calcBristol();
 </script>
 </body>
 </html>
